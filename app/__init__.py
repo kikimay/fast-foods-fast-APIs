@@ -1,9 +1,10 @@
-from flask import flask
- #initialize app
-app =flask(__name__, instance_relative_config=True)
+from flask import Flask
  
- from app import views
+#initialize app
+app = Flask(__name__, instance_relative_config=True)
+ 
+from app import views
 
 #Load the config file
- app.config.from_object('config')
- sss
+app.config.from_object('config')
+ 
