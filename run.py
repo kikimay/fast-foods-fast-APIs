@@ -86,6 +86,38 @@ class Users(object):
                 
         
 
+#FOOD SECTION
+food_items = []
+class food(object):
+    @app.route("/add_food_item", methods=["POST"])
+    def add_food_item():
+        if not request.is_json:
+           return jsonify(400,"request not json")
+        else:
+            data = request.get_json()
+            food_id = len(food_items)+1
+            food_name= data['food_name']
+            image = data['image']
+            price = data['price']
+            
+        if len(food_items) != 0:
+            for food_item in food_items:
+                food_name2 = food_item.get('food_name')
+            if food_name==food_name2:
+                return jsonify(403,"food_item already exists")
+        
+        else:
+            food_item = {
+            "food_id":food_id,
+            "food_name":food_name,
+            "image":image,   
+            "price":price,
+            
+            }
+
+            food_items.append(food_item)
+
+            return make_response(jsonify({"status":"created", "food_item":food_item}),201)
    
 
 if __name__ == '__main__':
