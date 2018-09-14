@@ -184,4 +184,21 @@ class Orders(object):
             return jsonify(400,"User must be logged in")
         else:
             return make_response(jsonify({"status":"ok", "orders":orders}),200)
+
+@app.route('/orders/<int:order_id>', methods=['GET'])
+    def specificorder(order_id):
+        if not session.get('logged_in'):
+            return jsonify(400,"User must be logged in")
+        
+order = [order for order in orders if order.get('order_id')==order_id]
+        
+        
+        if len(order) == 0:
+            return (422,"Order you are looking for does not exist")
+        
+
+        else:
+            return make_response(jsonify({"status":"ok", "order":order}),200)
+        
+
         
