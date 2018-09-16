@@ -300,14 +300,34 @@ class Orders(object):
             return jsonify(400,"User must be logged in")
         
         if request.method == 'PUT':
-            data = request.get_json(force=True)
+            data = request.get_json()
             if len(orders) != 0:
-                order = [order for order in orders if order.get('order_id')==order_id]
-            
-                order['completed_status'] = data['completed_status']
-                order['accepted_status'] = data['accepted_status']
-                
-                return make_response(jsonify({"status":"ok", "order":order}),200)
+                for order in orders:
+                    o = order.get('order_id')
+                    if o == order_id:
+                        if not data['completed_status'] == "" and data['accepted_status'] == "":
+                            if order.get('accepted_status') == False:
+                                return make_response(jsonify({'error': 'Order must be accepted before it can be marked as complete.'}), 400)
+
+                            else:
+                                order['completed_status'] = data['completed_status']
+                            
+                                return make_response(jsonify({"status":"ok", "order":order}),200)
+
+                        elif not data['accepted_status'] == "" and data['completed_status'] == "":
+                            order['accepted_status'] = data['accepted_status']
+                    
+                            return make_response(jsonify({"status":"ok", "order":order}),200)
+
+
+                        elif  data['accepted_status'] == "" and data['completed_status'] == "":
+                            
+                            return make_response(jsonify({'error': 'Please provide the status to be updated'}), 400)
+
+                        else:
+                            return make_response(jsonify({'error': 'Only one status can be updated at a time.'}), 400)
+                    else:
+                        return jsonify(404,"Order does not exist")
 
             else:
                 return make_response(jsonify({'error': 'the order does not exist'}), 404)
