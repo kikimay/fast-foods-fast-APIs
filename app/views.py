@@ -13,13 +13,13 @@ def index():
 
 
 #USER SECTION
-users = []#an empty list which is to contain dictionaries.
+users = []
 
 class Users(object):
     @app.route("/register", methods=["POST"])
     def register():
         if not request.is_json:
-            return jsonify(400,"request not json")#check whether data is in json form.
+            return jsonify(400,"request not json")
         else:
             data = request.get_json() 
             user_id =  len(users)+1
@@ -30,7 +30,7 @@ class Users(object):
             password2 = data['password2']
 
         
-        if not password == password2:#check whether passwords match
+        if not password == password2:
             return jsonify(403,"passwords don't match")
 
         
@@ -38,7 +38,7 @@ class Users(object):
             for user in users:
                 e = user.get('email')
                 u = user.get('username')
-                p = user.get('password')#loops the user list of dictionaries 
+                p = user.get('password')
                 
         else:
             user = {
@@ -48,18 +48,18 @@ class Users(object):
                  "username":username,
                  "password":password,
                  "admin":False
-                 }#create a dictionary with user details
+                 }
 
-            users.append(user)#create the first user.
+            users.append(user)
 
             return make_response(jsonify({"status":"created", "user":user, "users":users }),201)
                 
                 
         if email == e:
-            return jsonify(403,"user already exists")#check whether a user already exists via email.
+            return jsonify(403,"user already exists")
                     
         elif username == u and password == p:
-            return jsonify(403,"user already exists")#check whether a user already exists using username and password.
+            return jsonify(403,"user already exists")
                     
         else:
             user = {
@@ -71,7 +71,7 @@ class Users(object):
                  "admin":False
                  }
 
-            users.append(user)#create a new user and add them to the already existing list of users.
+            users.append(user)
 
             return make_response(jsonify({"status":"created", "user":user, "users":users }),201)
 
@@ -79,15 +79,15 @@ class Users(object):
 
     @app.route("/login")
     def home():
-        if session.get('logged_in'):#check whether user is logged in
+        if session.get('logged_in'):
             return make_response(jsonify({"status":"user logged in", "id":session['user_id'], "login":True}, ),200)
-        elif session.get('logged_in_admin'):#check whether admin user is logged in
+        elif session.get('logged_in_admin'):
             return make_response(jsonify({"status":"admin logged in", "login":True}, ),200)
         else:
             return make_response(jsonify({"status":"login error", "login":False}),401)
      
     @app.route("/login", methods=["POST"])
-    def do_user_login():#define a method that does user login
+    def do_user_login():
         data = request.get_json()
         username = data['username']
         password = data['password']
@@ -97,25 +97,25 @@ class Users(object):
             p = user.get('password')
             r = user.get('admin')
 
-            if password == p and username == u and r == False:#this if statament checks if username and password entered match one of the users in memory and also whether the user is an admin user or a user_user and returns the user id.
+            if password == p and username == u and r == False:
                 session['user_id'] = user['user_id']
                 session['logged_in'] = True
             elif password == p and username == u and r == True:
-                session['logged_in_admin'] = True#admin loggedin.
+                session['logged_in_admin'] = True
             else:
                 session['logged_in'] = False
                 session['logged_in_admin'] = False
             
-        return Users.home()#return to home page index.html
+        return Users.home()
 
     
 
 
-    #code for app logout.
+
     @app.route("/logout")
     def logout():
         session['logged_in'] = False
-        return Users.home()#return to index.html
+        return Users.home()
 
 
 
@@ -124,16 +124,11 @@ foods = []
 
 class Foods(object):
     @app.route("/add_food", methods=["POST"])
-    def add_food():#define a method that adds food item.
+    def add_food():
         if not session.get('logged_in'):
-            return jsonify(400,"User must be logged in")#check if user is logged return error messege if not
+            return jsonify(400,"User must be logged in")
 
-        ''' for user in users:
         
-            user_id = user.get('user_id')
-            if not user.get('admin') and user_id != session['user_id']:
-                return jsonify(400,"User must be admin")
- '''
         if not request.is_json:
             return jsonify(400,"request not json")
         else:
@@ -160,14 +155,14 @@ class Foods(object):
                  "price":price,   
                  "image":image,
                  "createdby":createdby
-                 }#a new food item to be added  to an empty list of foods
+                 }
 
             foods.append(food)
 
             return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
                 
                 
-        if name == n and price == p:#check whether food name and price already exist.
+        if name == n and price == p:
             return jsonify(403,"food item already exists")
                     
         else:
@@ -177,7 +172,7 @@ class Foods(object):
                  "price":price,   
                  "image":image,
                  "createdby":createdby
-                 }#add a new food item that doesnt exist
+                 }
 
             foods.append(food)
 
@@ -193,14 +188,13 @@ class Orders(object):
     @app.route("/place_order", methods=["POST", "GET"])
     def place_order():
         if not session.get('logged_in'):
-            return jsonify(400,"User must be logged in")#user must be logged in so he can place an order
+            return jsonify(400,"User must be logged in")
 
 
         if not request.is_json:
-            return jsonify(400,"request not json")#data must be json 
-        else: 
+            return jsonify(400,"request not json")
+        else:
             data = request.get_json() 
-            #an order consists of the following
             order_id =  len(orders)+1
             
             ordered_by = session['user_id']
@@ -211,26 +205,26 @@ class Orders(object):
 
             
            
-        if destination == "" or payment_mode == "":#user must fill both destination and payment mode else order cant be placed
+        if destination == "" or payment_mode == "":
             return jsonify(400,"You must fill all fields")
         
         else:
             
-            for ordered_item in ordered_items:#loop through orders list
+            for ordered_item in ordered_items:
                 food_name = ordered_item.get('food_name')
                 quantity = ordered_item.get('quantity')
                 
                 order_item_id =  len(order_items)+1
                 
-                if quantity == "":#user must specify quantity else order cant be placed
+                if quantity == "":
                     return jsonify(400,"You must fill all fields")
 
-                for food in foods:#loop through foods list and get the name and price for each food item in foods list.
+                for food in foods:
                     name = food.get('name')
                     price = food.get('price')
 
                     if food_name == name:
-                        total = int(quantity) * int(price)#calculates the total amount to be paid when quantity for a food is greater than one.
+                        total = int(quantity) * int(price)
                         order_item = {
                             "order_item_id":order_item_id,
                             "order_id":order_id,
@@ -241,17 +235,12 @@ class Orders(object):
                             }
                         
 
-                        order_items.append(order_item)#add order to the order items by other users
+                        order_items.append(order_item)
 
                         grand = 0
-                        granditems = 0
                         for order_item in order_items:
                             total = order_item.get('total')
-                            grand = grand + int(total)#calculate total amount to be paid eventually.
-                            quantity = order_item.get('quantity')
-                            granditems = granditems + int(quantity)#calculate the total number of items ordered.
-                        
-                        
+                            grand = grand + int(total)
 
             order = {
                 "order_id":order_id,
@@ -260,18 +249,18 @@ class Orders(object):
                 "payment_mode":payment_mode,
                 "completed_status":False,
                 "accepted_status":False,
-                "grand":grand,"granditems":granditems
+                "grand":grand
                 }
 
-            orders.append(order)  #add order to the list of orders.         
+            orders.append(order)           
 
-            return make_response(jsonify({"status":"created", "grand":grand, "orders":orders, "order_items":order_items, "order":order, "order_item":order_item,}),201)
+            return make_response(jsonify({"status":"created", "orders":orders, "order_items":order_items, "order":order, "order_item":order_item,}),201)
 
     
     @app.route("/orders", methods=["GET"])
     def ordersall():
         if not session.get('logged_in'):
-            return jsonify(400,"User must be logged in")#to get a list of all orders admin users must be logged in
+            return jsonify(400,"User must be logged in")
         else:
             return make_response(jsonify({"status":"ok", "orders":orders}),200)
         
@@ -281,9 +270,9 @@ class Orders(object):
     @app.route('/orders/<int:order_id>', methods=['GET'])
     def specificorder(order_id):
         if not session.get('logged_in'):
-            return jsonify(400,"User must be logged in")#to get a specific order a user must be logged in
+            return jsonify(400,"User must be logged in")
         
-        order = [order for order in orders if order.get('order_id')==order_id]#get a specific order by order id
+        order = [order for order in orders if order.get('order_id')==order_id]
         
         
         if len(order) == 0:
@@ -298,20 +287,20 @@ class Orders(object):
     @app.route('/orders/<int:order_id>', methods=['PUT'])
     def updateorders(order_id):
         if not session.get('logged_in'):
-            return jsonify(400,"User must be logged in")#to update an order admin user must be logged in
+            return jsonify(400,"User must be logged in")
         
-        if request.method == 'PUT':#method for update is PUT
+        if request.method == 'PUT':
             data = request.get_json()
             if len(orders) != 0:
                 for order in orders:
-                    o = order.get('order_id')#fetch order id of each order in orders and compare it with one that the admin inputs.
+                    o = order.get('order_id')
                     if o == order_id:
                         if not data['completed_status'] == "" and data['accepted_status'] == "":
-                            if order.get('accepted_status') == False:#boleen order status not accepted
+                            if order.get('accepted_status') == False:
                                 return make_response(jsonify({'error': 'Order must be accepted before it can be marked as complete.'}), 400)
 
                             else:
-                                order['completed_status'] = data['completed_status']#when order status has been accepted then mark status as complete
+                                order['completed_status'] = data['completed_status']
                             
                                 return make_response(jsonify({"status":"ok", "order":order}),200)
 
@@ -328,13 +317,11 @@ class Orders(object):
                         else:
                             return make_response(jsonify({'error': 'Only one status can be updated at a time.'}), 400)
                     else:
-                        return jsonify(404,"Order does not exist")#order has to exist for updating
+                        return jsonify(404,"Order does not exist")
 
             else:
                 return make_response(jsonify({'error': 'the order does not exist'}), 404)
 
         else:
-            return Orders.specificorder(order_id)#returns specific order
-
-    
-
+            return Orders.specificorder(order_id)
+            

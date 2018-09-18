@@ -1,2 +1,2 @@
-# fast-foods-fast-APIs
-Tthe API EndPoints to implement the fast foods fast app
+# fast-food-fast-API
+The API End Points for the fast-food-fast app
