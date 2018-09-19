@@ -179,7 +179,14 @@ class Foods(object):
 
             return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
             
-  
+    @app.route("/api/v1/get_allfoods",methods=["GET"])
+    def get_allfoods():
+        if foods != []:
+            return make_response(jsonify({"foods":foods}),200)
+        else:
+            return make_response(jsonify("no foods available"), 404)
+
+
 
 
 #ORDERS SECTION
