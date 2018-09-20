@@ -204,11 +204,11 @@ class Foods(object):
         if not session.get('logged_in'):
             return jsonify(400,"User must be logged in")#user has to be logged in to get the food item
        
-        if len(foods) != 0:
+        if len(foods) != 0:#check whether list foods  is empty
             for food in foods:
-                 f = food.get('food_id')
+                 f = food.get('food_id')#get food id then compare it with one from the url 
                  if f == food_id:
-                     foods.remove(food)
+                     foods.remove(food)#remove the food item from the list
                      return make_response(jsonify({"status":"ok","foods":foods}),200)
         else:
             return make_response(jsonify({'error':'food does not exist'}),404)
