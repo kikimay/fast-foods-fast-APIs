@@ -180,13 +180,43 @@ class Foods(object):
             return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
             
     @app.route("/api/v1/get_allfoods",methods=["GET"])
-    def get_allfoods():
-        if foods != []:
+    def get_allfoods():#define a function that gets all foods.
+        if foods != []:#check whether list foods is empty if not return all foods
             return make_response(jsonify({"foods":foods}),200)
         else:
             return make_response(jsonify("no foods available"), 404)
 
+    @app.route("/api/v1/getfooditem<int:food_id>",methods=["GET"])
+    def get_food_byID(food_id):#define a fuction that gets a specific food by order id.
+        if not session.get('logged_in'):
+            return jsonify(400,"User must be logged in")#user has to be logged in to get the food item
+       
+        food = [food for food in foods if food.get ("food_id")==food_id]#get specific food by its id
+        
+        if len(foods) == 0:
+            return (422,"food item does not exist")
+        else:
+             return make_response(jsonify(200,{"status":"ok","food":food}))
 
+
+    @app.route("/api/v1/getfooditem<int:food_id>",methods=["DELETE"])
+    def delete(food_id):#define a fuction that gets a  food by order id.
+        if not session.get('logged_in'):
+            return jsonify(400,"User must be logged in")#user has to be logged in to get the food item
+       
+        if len(foods) != 0:
+            for food in foods:
+                 f = food.get('food_id')
+                 if f == food_id:
+                     foods.remove(food)
+                     return make_response(jsonify({"status":"ok","foods":foods}),200)
+        else:
+            return make_response(jsonify({'error':'food does not exist'}),404)
+                 
+       
+            
+        
+            
 
 
 #ORDERS SECTION
@@ -247,15 +277,16 @@ class Orders(object):
 
                         order_items.append(order_item)#add order to the order items by other users
 
-                        grand = 0
-                        granditems = 0
-                        for order_item in order_items:
-                            total = order_item.get('total')
-                            grand = grand + int(total)
-                            grand = grand + int(total)#calculate total amount to be paid eventually.
-                            quantity = order_item.get('quantity')
-                            granditems = granditems + int(quantity)
-                            granditems = granditems + int(quantity)#calculate the total number of items ordered.
+                grand = 0
+                granditems = 0
+                for order_item in order_items:
+                    
+                    total = order_item.get('total')
+                    
+                    grand = grand + int(total)#calculate total amount to be paid eventually.
+                    quantity = order_item.get('quantity')
+                    
+                    granditems = granditems + int(quantity)#calculate the total number of items ordered.
                         
             order = {
                 "order_id":order_id,
@@ -263,8 +294,9 @@ class Orders(object):
                 "destination":destination,   
                 "payment_mode":payment_mode,
                 "completed_status":False,
-                "accepted_status":False,
-                "grand":grand
+                "accepted_status":None,
+                "grand":grand,
+                "granditems":granditems
                 }
 
             orders.append(order)#add order to the list of orders.                 
