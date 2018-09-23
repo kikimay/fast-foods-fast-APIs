@@ -1,8 +1,8 @@
 import pytest
 from flask import json
-from app.views import app
-from app.views import Foods
-from app.views import Users
+from app.api.v1.views import app
+from app.api.v1.views import Foods
+from app.api.v1.views import Users
 
 testusers = Users()
 testfoods = Foods()
