@@ -4,6 +4,11 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install coveralls codecov
+
 
 script:
-  - "python -m pytest"
+  - "python --with-coverage --cover-package=app app/"
+
+after_success:
+  - coveralls
