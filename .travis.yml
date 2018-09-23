@@ -9,7 +9,7 @@ install:
 
 
 script:
-  - "pytest --with-coverage --cover-package=app"
+  - "pytest"
 
 after_success:
   - coveralls
