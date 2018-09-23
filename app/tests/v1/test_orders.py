@@ -202,11 +202,8 @@ def test_orders_order_items_empty():
 
 def test_orders_successfully():
     result=app.test_client()
-    old_id_orders=len(testorders.ordersall)
     response= result.post('/api/v1/place_order', data=json.dumps(sample_order[7]) ,content_type='application/json')
     data=json.loads(response.data)
-    new_id_orders = len (data)    
-    assert old_id_orders + 1 == new_id_orders
     assert(response.status_code==201)
 
 '''-------------------------------------------------------------------------------------------------------------------------------'''
