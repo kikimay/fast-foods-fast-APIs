@@ -1,4 +1,4 @@
-from app import app
+from app.api.v1 import app
 from flask import Flask, request, session, jsonify, make_response
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -18,7 +18,7 @@ def index():
 #USER SECTION
 users = [{
         "admin": True,
-        "email": "maryn@gmail.com",
+        "email": "mary@gmail.com",
         "name": "kiki",
         "password": "pass",
         "user_id": 1,

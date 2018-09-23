@@ -78,6 +78,13 @@ sample_registration = [
  "username":"kiki",
  "password":"pass",
  "password2":"pass"
+},
+{
+ "name":"maryn",
+ "email":"mary@gmail.com",
+ "username":"kiki",
+ "password":"pass",
+ "password2":"pass"
 }
 ]
 
@@ -181,14 +188,14 @@ def test_register_correct_data():
     result = app.test_client()
     response = result.post('/api/v1/register', data = json.dumps(sample_registration[9]), content_type = 'application/json')
     json.loads(response.data.decode('utf-8'))
-    assert (response.status_code == 200)
+    assert (response.status_code == 201)
 
 
 #DUPLICATE INPUT
 
 def test_register_duplicate_input():
     result = app.test_client()
-    response = result.post('/api/v1/register', data = sample_registration[9], content_type = 'application/json')
+    response = result.post('/api/v1/register', data = sample_registration[10], content_type = 'application/json')
     assert (response.status_code == 400)
 
 '''---------------------------------------------------------------------------------------------------------------------'''
@@ -249,4 +256,4 @@ def test_login_correct_data():
 def test_logout_correctly():
     result=app.test_client()
     response= result.get('/api/v1/logout', content_type = 'application/json')
-    assert(response.status_code == 401)
+    assert(response.status_code == 200)
