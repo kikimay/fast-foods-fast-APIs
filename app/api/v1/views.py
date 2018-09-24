@@ -8,7 +8,7 @@ import re
 
 app = Flask(__name__)
 
-app.secret_key = os.urandom(12)
+
 
 @app.route("/")
 def index():
@@ -16,14 +16,7 @@ def index():
 
 
 #USER SECTION
-users = [{
-        "admin": True,
-        "email": "mary@gmail.com",
-        "name": "kiki",
-        "password": "pass",
-        "user_id": 1,
-        "username": "may"
-        }]
+users = []
 
 class Users(object):
     @app.route("/api/v1/register", methods=["POST"])
@@ -155,9 +148,7 @@ foods = []
 class Foods(object):
     @app.route("/api/v1/add_food", methods=["POST"])
     def add_food():#define a method that adds new food item
-        if not session.get('logged_in_admin'):#check if admin is logged in
-            return make_response(jsonify({"status":"unauthorised","message":"Admin User must be logged in"}),401)
-
+        
         
         if not request.is_json:
             return make_response(jsonify({"status":"wrong format","messenge":"request not json"}),400)
@@ -263,8 +254,6 @@ class Foods(object):
 
     @app.route('/api/v1/foods/<int:food_id>', methods=['DELETE'])
     def deletefood(food_id):# a function to delete food item
-        if not session.get('logged_in_admin'):
-            return make_response(jsonify({"status":"unauthorised","message":"admin User must be logged in"}),401)#admin must be logged inorder to delete
         
         if request.method == 'DELETE':#check method
            
@@ -286,9 +275,7 @@ class Foods(object):
 
     @app.route('/api/v1/foods/<int:food_id>', methods=['PUT'])
     def updatefoods(food_id):
-        if not session.get('logged_in_admin'):
-            return jsonify(400,"Admin User must be logged in")
-        
+       
         if request.method == 'PUT':
             data = request.get_json()
             if len(foods) != 0:
@@ -324,7 +311,7 @@ class Foods(object):
 
 #ORDERS SECTION
 orders = []
-order_items = []
+
 
 class Orders(object):
     @app.route("/api/v1/place_order", methods=["POST", "GET"])
@@ -333,7 +320,7 @@ class Orders(object):
 
             return make_response(jsonify({"status":"unauthorised","message":"User must be logged in"}),401)
 
-
+           
 
         if not request.is_json:
             return make_response(jsonify({"status":"wrong format","message":"request not json"}),400)#data must be json 
@@ -344,67 +331,15 @@ class Orders(object):
             ordered_by = session['user_id']
             destination = data['destination']
             payment_mode = data['payment_mode']
-            ordered_items = data['order_items']
             
 
             
            
-        if destination == "" or payment_mode == "":#user must fill both destination and payment mode else order cant be placed
+        if destination == "" or payment_mode == "" :#user must fill both destination and payment mode else order cant be placed
             return make_response(jsonify({"status":"not acceptable","message":"You must fill all fields"}),406)
 
         
         else:
-        
-            if len(ordered_items) != 0:
-                for ordered_item in ordered_items:
-                    food_name = ordered_item.get('food_name')
-                    quantity = ordered_item.get('quantity')
-                    
-                    order_item_id =  len(order_items)+1
-                    
-                    if quantity == "":#user must specify quantity else order cant be placed
-                        return make_response(jsonify({"status":"not acceptable","message":"You must fill all fields"}),406)
-                    if food_name == "":#user must specify food name else order cant be placed
-                        return make_response(jsonify({"status":"not acceptable","message":"You must fill all fields"}),406)
-                   
-
-                    if not quantity.isdigit():
-                        return make_response(jsonify({"status":"not acceptable","message":"quantity not valid"}),400)
-                    if not food_name.isalpha():
-                        make_response(jsonify({"status":"not acceptable","message":"food name not valid"}),400)
-                   
-                    
-
-                    for food in foods:#loop through foods list and get the name and price for each food item in foods list.
-                        name = food.get('name')
-                        price = food.get('price')
-
-                        if food_name == name:
-                            total = int(quantity) * int(price)#calculates the total amount to be paid when quantity for a food is greater than one.
-    
-                            order_item = {
-                                "order_item_id":order_item_id,
-                                "order_id":order_id,
-                                "food_name":food_name,
-                                "Quantity":quantity,
-                                "price":price,
-                                "total":total
-                                }
-                            
-
-                            order_items.append(order_item)
-
-                    grand = 0
-                    items = 0
-                    for order_item in order_items:
-                        o = order_item.get('order_id')
-                        
-                        if o == order_id:
-                            num = order_item.get('Quantity')
-                            total = order_item.get('total')
-                            grand = grand + int(total)#calculate total amount to be paid eventually.
-                            items = items + int(num)#calculate the total number of items ordered.
-
                 order = {
                     "order_id":order_id,
                     "ordered_by":ordered_by,
@@ -412,22 +347,17 @@ class Orders(object):
                     "payment_mode":payment_mode,
                     "completed_status":False,
                     "accepted_status":None,
-                    "grand_total":grand,
-                    "number_of_items":items
+                    
                     }
 
                 orders.append(order) #add order to the list of orders.          
 
-                return make_response(jsonify({"status":"created", "orders":orders, "order_items":order_items, "order":order, "order_item":order_item,}),201)
-            else:
-                make_response(jsonify({"status":"not acceptable","message":"You must order atleast one item"}),406)
-                   
+                return make_response(jsonify({"status":"created", "orders":orders, "order":order}),201)
+           
     
     @app.route("/api/v1/orders", methods=["GET"])
     def ordersall():
-        if not session.get('logged_in_admin'):
-            return make_response(jsonify({"status":"unauthorised","message":"admin user must be logged in"}),401)
-                   #to get a list of all orders admin users must be logged in
+    
         if len(orders) == 0:
             return make_response(jsonify({"status":"not found","message":"order you are looking for does not exist"}),404)
                    
@@ -439,9 +369,6 @@ class Orders(object):
 
     @app.route('/api/v1/orders/<int:order_id>', methods=['GET'])
     def specificorder(order_id):
-        if not session.get('logged_in_admin'):
-            return make_response(jsonify({"status":"unauthorised","message":"admin user must be logged in"}),401)
-                   #to get a specific order a user must be logged in
         
         order = [order for order in orders if order.get('order_id')==order_id]#get a specific order by order id
         
@@ -457,9 +384,7 @@ class Orders(object):
 
     @app.route('/api/v1/orders/<int:order_id>', methods=['PUT'])
     def updateorders(order_id):
-        if not session.get('logged_in_admin'):
-            return make_response(jsonify({"status":"unauthorised","message":"admin user must be logged in"}),401)
-                   #to get a specific order a user must be logged in
+        
         
         
         
@@ -479,23 +404,23 @@ class Orders(object):
                             
                                 return make_response(jsonify({"status":"ok", "order":order}),200)
 
-                        elif not data['accepted_status'] == "" and data['completed_status'] == "":
-                            order['accepted_status'] = data['accepted_status']
-                    
-                            return make_response(jsonify({"status":"ok", "order":order}),200)
+                           # elif not data['accepted_status'] == "" and data['completed_status'] == "":
+                                #order['accepted_status'] = data['accepted_status']
+                        
+                                #return make_response(jsonify({"status":"ok", "order":order}),200)
 
 
                         elif  data['accepted_status'] == "" and data['completed_status'] == "":
-                            
+                        
                             return make_response(jsonify({'error': 'Please provide the status to be updated'}), 403)
 
                         else:
                             return make_response(jsonify({'error': 'Only one status can be updated at a time.'}), 403)
-                    else:
-                        return make_response(jsonify({"status":"not found","message":"order you are looking for does not exist"}),404)
-                             #order has to exist for updating
+                else:
+                    return make_response(jsonify({"status":"not found","message":"order you are looking for does not exist"}),404)
+                    #order has to exist for updating
 
-       
+       s
 
             else:
                 return make_response(jsonify({'error': 'the order does not exist'}), 404)
