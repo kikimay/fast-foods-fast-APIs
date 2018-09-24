@@ -56,7 +56,7 @@ sample_user=[
 
 def test_foods_retrive_all():
     result=app.test_client()
-    response= result.get('/api/v1/foods',content_type='application/json')
+    response= result.get("/api/v1/foods",headers={"content-type" : "application/json"})
     assert(response.status_code==200)
 
 '''-------------------------------------------------------------------------------------------------------------------------------'''

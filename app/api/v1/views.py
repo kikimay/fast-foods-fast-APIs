@@ -9,7 +9,7 @@ import re
 app = Flask(__name__)
 
 
-
+app.secret_key = os.urandom(12)
 @app.route("/")
 def index():
     return jsonify(200,"WELCOME. You are here.")
@@ -387,13 +387,13 @@ class Orders(object):
         
         
         
+       
         
-        if request.method == 'PUT':#method for update is PUT
+        if request.method == 'PUT':
             data = request.get_json()
             if len(orders) != 0:
                 for order in orders:
-                    o = order.get('order_id')#fetch order id of each order in orders and compare it with one that the admin inputs.
-            
+                    o = order.get('order_id')
                     if o == order_id:
                         if not data['completed_status'] == "" and data['accepted_status'] == "":
                             if not order.get('accepted_status') == True:
@@ -404,29 +404,26 @@ class Orders(object):
                             
                                 return make_response(jsonify({"status":"ok", "order":order}),200)
 
-                           # elif not data['accepted_status'] == "" and data['completed_status'] == "":
-                                #order['accepted_status'] = data['accepted_status']
-                        
-                                #return make_response(jsonify({"status":"ok", "order":order}),200)
+                        elif not data['accepted_status'] == "" and data['completed_status'] == "":
+                            order['accepted_status'] = data['accepted_status']
+                    
+                            return make_response(jsonify({"status":"ok", "order":order}),200)
 
 
                         elif  data['accepted_status'] == "" and data['completed_status'] == "":
-                        
-                            return make_response(jsonify({'error': 'Please provide the status to be updated'}), 403)
+                            
+                            return make_response(jsonify({'error': 'Please provide the status to be updated'}), 400)
 
                         else:
-                            return make_response(jsonify({'error': 'Only one status can be updated at a time.'}), 403)
-                else:
-                    return make_response(jsonify({"status":"not found","message":"order you are looking for does not exist"}),404)
-                    #order has to exist for updating
-
-       s
+                            return make_response(jsonify({'error': 'Only one status can be updated at a time.'}), 400)
+                    else:
+                        return jsonify(404,"Order does not exist")
 
             else:
                 return make_response(jsonify({'error': 'the order does not exist'}), 404)
 
         else:
-            return Orders.specificorder(order_id)#returns specific order
+            return Orders.specificorder(order_id)
 
 
 
