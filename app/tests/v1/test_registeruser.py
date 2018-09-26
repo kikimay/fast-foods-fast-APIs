@@ -3,128 +3,129 @@ from flask import json
 from app.api.v1.views import app
 from app.api.v1.views import Users
 
+
 testusers = Users()
 
 
 #REGISTRATION INPUT FOR TESTS
 
 sample_registration = [
-{
- "name":"",
- "email":"maryn@gmail.com",
- "username":"delight",
- "password":"delight",
- "password2":"delight"
-},
-{
- "name":"maryn",
- "email":"",
- "username":"kiki",
- "password":"pass",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"",
- "password":"pass",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"kiki",
- "password":"",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"kiki",
- "password":"pass",
- "password2":""
-},
-{
- "name":"maryn",
- "email":"maryn@gmailcom",
- "username":"kiki",
- "password":"pass",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"maryngmail.com",
- "username":"kiki",
- "password":"pass",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"kiki",
- "password":"pass",
- "password2":"pass1"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"kiki",
- "password":"pass11",
- "password2":"pass1"
-},
-{
- "name":"maryn",
- "email":"maryn@gmail.com",
- "username":"kiki",
- "password":"pass",
- "password2":"pass"
-},
-{
- "name":"maryn",
- "email":"mary@gmail.com",
- "username":"kiki",
- "password":"pass",
- "password2":"pass"
-}
-]
+            {
+            "name":"",
+            "email":"maryn@gmail.com",
+            "username":"delight",
+            "password":"delight",
+            "password2":"delight"
+            },
+            {
+            "name":"maryn",
+            "email":"",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"",
+            "password":"pass",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"kiki",
+            "password":"",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"kiki",
+            "password":"pass",
+            "password2":""
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmailcom",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryngmail.com",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass1"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"kiki",
+            "password":"pass11",
+            "password2":"pass1"
+            },
+            {
+            "name":"maryn",
+            "email":"mary@gmail.com",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass"
+            },
+            {
+            "name":"maryn",
+            "email":"maryn@gmail.com",
+            "username":"kiki",
+            "password":"pass",
+            "password2":"pass"
+            }
+        ]
 
 
 #LOGIN CREDENTIALS FOR TESTS
 
 sample_login = [
-{
- "email":"", 
- "password":"pass"
-},
-{
- "email":"maryn@gmail.com",  
- "password":""
-},
-{
- "email":"maryngmail.com",   
- "password":"pass"
-},
-{
- "email":"maryn@gmailcom",   
- "password":"pass"
-},
-{
- "email":"mary@gmail.com",   
- "password":"pass1"
-},
-{
- "email":"mary@gmail.com",   
- "password":"pass1"
-},
-{
- "email":"maryn@gmail.com",  
- "password":"pass"
-}
-]
+            {
+            "email":"",	
+            "password":"pass"
+            },
+            {
+            "email":"maryn@gmail.com",	
+            "password":""
+            },
+            {
+            "email":"maryngmail.com",	
+            "password":"pass"
+            },
+            {
+            "email":"maryn@gmailcom",	
+            "password":"pass"
+            },
+            {
+            "email":"mary@gmail.com",	
+            "password":"pass1"
+            },
+            {
+            "email":"mary@gmail.com",	
+            "password":"pass1"
+            },
+            {
+            "email":"mwirigi@gmail.com",	
+            "password":"pass"
+            }
+        ]
 
 
 
-'''---------------------------------------------------------------------------------------------------------------------'''
+'''-------------------------------------------------------------------------------------------------------------------------------'''
 
 #REGISTRATION TESTS
 
@@ -198,7 +199,7 @@ def test_register_duplicate_input():
     response = result.post('/api/v1/register', data = sample_registration[10], content_type = 'application/json')
     assert (response.status_code == 400)
 
-'''---------------------------------------------------------------------------------------------------------------------'''
+'''-------------------------------------------------------------------------------------------------------------------------------'''
 
 #LOGIN TESTS
 
@@ -248,12 +249,18 @@ def test_login_correct_data():
     assert(response.status_code == 200)
 
 
-'''--------------------------------------------------------------------------------------------------------------------------------------'''
+'''-------------------------------------------------------------------------------------------------------------------------------'''
 
 
 #LOGOUT TESTS
+
+def test_logout_without_logged_in():
+    result=app.test_client()
+    response= result.get('/api/v1/logout', content_type = 'application/json')
+    assert(response.status_code == 200)
 
 def test_logout_correctly():
     result=app.test_client()
     response= result.get('/api/v1/logout', content_type = 'application/json')
     assert(response.status_code == 200)
+
