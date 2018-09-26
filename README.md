@@ -108,7 +108,7 @@ It is possible to run test scripts individually.
 ``` cd ``` to your tests directory.
 
 ```
-pytest test_users.py
+pytest test_registerusers.py
 ```
 to test the class Users only.
 
