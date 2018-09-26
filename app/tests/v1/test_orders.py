@@ -1,5 +1,5 @@
 import pytest
-from flask import json
+from Flask import fLASK
 from app.api.v1.views import app
 from app.api.v1.views import  Orders
 from app.api.v1.views import  Users
@@ -213,7 +213,10 @@ def credentials_admin():
 
 #GET ALL ORDERS TESTS
 
-@pytest.mark.usefixtures('user_admin')
+def test_user_login_successful(self):
+	response= self.client.post('/api/v1/login', 			data=json.dumps(user_data) ,content_type='application/json')
+	self.assertEqual(201,response.status_code)
+
 def test_orders_retrive_all(user_admin):
     result=app.test_client()
     response= result.get('/api/v1/orders',content_type='application/json', headers=user_admin)
@@ -223,11 +226,13 @@ def test_orders_retrive_all(user_admin):
 
 #PLACE ORDER TESTS
 
-
+def test_user_login_successful(self):
+	response= self.client.post('/api/v1/login', 			data=json.dumps(user_data) ,content_type='application/json')
+	self.assertEqual(201,response.status_code)
 def test_orders_quantity_not_digit():
-    result=app.test_client()
-    response= result.post('/api/v1/place_order', data=json.dumps(sample_order[0]) ,content_type='application/json')
-    assert(response.status_code==400)
+        result=app.test_client()
+        response= result.post('/api/v1/place_order', data=json.dumps(sample_order[0]) ,content_type='application/json')
+        assert(response.status_code==400)
 
 def test_orders_food_name_not_str():
     result=app.test_client()

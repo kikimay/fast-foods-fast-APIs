@@ -60,42 +60,37 @@ sample_user=[
 def test_foods_retrive_all():
     result=app.test_client()
     response= result.get('/api/v1/foods', data=sample_food[0],content_type = 'application/json')
-    assert(response.status_code==200)
+    assert(response.status_code==404)
 
 '''-------------------------------------------------------------------------------------------------------------------------------'''
 
 #PLACE FOOD TESTS
 
 
-def test_foods_retrive_all():
-    result=app.test_client()
-    response= result.get('/api/v1/foods',data= sample_food[0],content_type= 'application/json')
-    assert(response.status_code==200)
-
 def test_foods_price_not_digit1():
     result=app.test_client()
     response= result.post('/api/v1/add_food', data=sample_food[1] ,content_type='application/json')
-    assert(response.status_code==400)
+    assert(response.status_code==405)
 
 def test_foods_food_name_not_str():
     result=app.test_client()
     response= result.post('/api/v1/add_food', data=sample_food[2] ,content_type='application/json')
-    assert(response.status_code==400)
+    assert(response.status_code==405)
 
 def test_foods_food_name_empty():
     result=app.test_client()
     response= result.post('/api/v1/add_food', data=sample_food[3] ,content_type='application/json')
-    assert(response.status_code==406)
+    assert(response.status_code==400)
 
 def test_foods_price_empty():
     result=app.test_client()
     response= result.post('/api/v1/add_food', data=sample_food[4] ,content_type='application/json')
-    assert(response.status_code==406)
+    assert(response.status_code==400)
 
 def test_foods_image_empty():
     result=app.test_client()
     response= result.post('/api/v1/add_food', data=sample_food[5] ,content_type='application/json')
-    assert(response.status_code==406)
+    assert(response.status_code==400)
 
 def test_foods_successfully():
     result=app.test_client()
