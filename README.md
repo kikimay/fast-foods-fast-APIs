@@ -2,6 +2,8 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg)
 
+[![Build Status](https://travis-ci.org/kikimay/fast-foods-fast-APIs.svg?branch=master)](https://travis-ci.org/kikimay/fast-foods-fast-APIs)
+
 # Fast Food Fast
 
 Fast food fast is a fast food delivery application. It allows a user to order food from the restautant and have it delivered to them.
