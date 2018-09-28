@@ -2,7 +2,7 @@
 
 ![license](https://img.shields.io/github/license/mashape/apistatus.svg)
 
-[![Build Status](https://travis-ci.org/kikimay/fast-foods-fast-APIs.svg?branch=master)](https://travis-ci.org/kikimay/fast-foods-fast-APIs)
+[![Build Status](https://travis-ci.org/kikimay/fast-foods-fast-APIs.svg?branch=development)](https://travis-ci.org/kikimay/fast-foods-fast-APIs)
 
 # Fast Food Fast
 
