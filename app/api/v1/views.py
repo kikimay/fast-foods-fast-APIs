@@ -15,8 +15,18 @@ def index():
     return jsonify(200,"WELCOME. You are here.")
 
 
+
 #USER SECTION
-users = []
+users = [
+    {
+        "admin":True,
+        "email":"mwirigi@gmail.com",
+        "name":"maryn",
+        "password":"pass",
+        "user_id":1,
+        "username":"kiki"
+    }
+]
 
 class Users(object):
     @app.route("/api/v1/register", methods=["POST"])
@@ -47,24 +57,20 @@ class Users(object):
             for user in users:
                 e = user.get('email')#gets all the email adresses for all the existing users.
                 
+                if email == e:
+                    return make_response(jsonify({"status":"not acceptable","messenge":"user already exists"}),406)#check if email adress provided matches one that already exists
                 
-        else:
-            user = {
-                 "user_id":user_id,
-                 "name":name,
-                 "email":email,   
-                 "username":username,
-                 "password":password,
-                 "admin":False
-                 }
+                else:
+                    user = {
+                        "user_id":user_id,
+                        "name":name,
+                        "email":email,   
+                        "username":username,
+                        "password":password,
+                        "admin":False
+                        }
 
-            users.append(user)#create the first user
-
-            return make_response(jsonify({"status":"created", "user":user, "users":users }),201)
-                
-                
-        if email == e:
-            return make_response(jsonify({"status":"not acceptable","messenge":"user already exists"}),406)#check if email adress provided matches one that already exists
+                     
                     
                    
         else:
@@ -77,9 +83,9 @@ class Users(object):
                  "admin":False
                  }
 
-            users.append(user)#add user to the list of users if the email provided doesnt match one of the existing users
+        users.append(user)#add user to the list of users if the email provided doesnt match one of the existing users
 
-            return make_response(jsonify({"status":"created", "user":user, "users":users }),201)
+        return make_response(jsonify({"status":"created", "user":user, "users":users }),201)
 
 
       #code for user login
@@ -115,11 +121,11 @@ class Users(object):
             if password == p and email == e and r == False:
                 session['user_id'] = user.get('user_id')
                 session['logged_in'] = True #when r is false user is the one logged in
-                session['logged_in_admin'] = False
+                
             elif password == p and email == e and r == True:
                 session['user_id'] = user.get('user_id')
                 session['logged_in_admin'] = True#when r is true admin is the one logged in
-                session['logged_in'] = False
+                
                 return Users.home()
             else:
                 session['logged_in'] = False
@@ -147,7 +153,9 @@ foods = []
 
 class Foods(object):
     @app.route("/api/v1/add_food", methods=["POST"])
-    def add_food():#define a method that adds new food item
+    def add_food(): #define a method that adds new food item
+        if not session.get('logged_in_admin'):
+            return make_response(jsonify({"status":"unauthorised", "message":"Admin User must be logged in"}),401)
         
         
         if not request.is_json:
@@ -200,33 +208,15 @@ class Foods(object):
                  "createdby":createdby
                  }
 
-            foods.append(food)
+        foods.append(food)
 
-            return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
+        return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
+            
                 
-                
-        if name == n and price == p:#check if the food item already exists
-            return jsonify(400,"food item already exists")
-        elif not price.isdigit():
-            return jsonify(400,"Price is not valid")
-                     
-        else:#if food item does not exist add it to the list
-            food = {
-                 "food_id":food_id,
-                 "name":name,
-                 "price":price,   
-                 "image":image,
-                 "createdby":createdby
-                 }
-
-            foods.append(food)
-
-            return make_response(jsonify({"status":"created", "food":food, "foods":foods }),201)
-
-
+        
 
     @app.route("/api/v1/foods", methods=["GET"])
-    def foodsall():#a function that returns all foods
+    def foodsall(): #a function that returns all foods
         if len(foods) == 0:
             return make_response(jsonify({"status":"not found","message":"foods you are looking for does not esxist"}),404)
         else:
@@ -236,7 +226,7 @@ class Foods(object):
 
     @app.route('/api/v1/foods/<int:food_id>', methods=['GET'])
     def specificfood(food_id):#a function that gets a specific food item by id
-
+        
         if len(foods) != 0:#check whether list foods is empty
             for food in foods:
                 f = food.get('food_id')
@@ -254,6 +244,9 @@ class Foods(object):
 
     @app.route('/api/v1/foods/<int:food_id>', methods=['DELETE'])
     def deletefood(food_id):# a function to delete food item
+        if not session.get('logged_in_admin'):
+            return jsonify(400,"Admin User must be logged in")
+        
         
         if request.method == 'DELETE':#check method
            
@@ -263,6 +256,8 @@ class Foods(object):
                     if f == food_id:#compare the ids
                         foods.remove(food)#delete the food item
                         return make_response(jsonify({"status":"ok", "foods":foods}),200)
+                    else:
+                        return make_response(jsonify({'error': 'the food does not exist'}), 404)
 
 
             else:
@@ -275,6 +270,9 @@ class Foods(object):
 
     @app.route('/api/v1/foods/<int:food_id>', methods=['PUT'])
     def updatefoods(food_id):
+        if not session.get('logged_in_admin'):
+            return jsonify(400,"Admin User must be logged in")
+        
        
         if request.method == 'PUT':
             data = request.get_json()
@@ -311,7 +309,7 @@ class Foods(object):
 
 #ORDERS SECTION
 orders = []
-
+order_items = []
 
 class Orders(object):
     @app.route("/api/v1/place_order", methods=["POST", "GET"])
@@ -327,10 +325,10 @@ class Orders(object):
         else:
             data = request.get_json() 
             order_id =  len(orders)+1
-            
             ordered_by = session['user_id']
             destination = data['destination']
             payment_mode = data['payment_mode']
+            ordered_items = data['order_items']
             
 
             
@@ -340,6 +338,53 @@ class Orders(object):
 
         
         else:
+            if not len(ordered_items) == 0:
+                for ordered_item in ordered_items:
+                    food_name = ordered_item.get('food_name')
+                    quantity = ordered_item.get('quantity')
+                    
+                    order_item_id =  len(order_items)+1
+                    
+                    if quantity == "":
+                        make_response(jsonify({"status":"not acceptable", "message":"Please fill all the required fields"}),406)
+                    if food_name == "":
+                        make_response(jsonify({"status":"not acceptable", "message":"Please fill all the required fields"}),406)
+                    
+                    if not quantity.isdigit():
+                        return make_response(jsonify({"status":"not acceptable", "message":"Quantity is not valid"}),400)
+                    if not food_name.isalpha():
+                        return make_response(jsonify({"status":"not acceptable", "message":"Food name is not valid"}),400)
+                        
+
+                    for food in foods:
+                        name = food.get('name')
+                        price = food.get('price')
+
+                        if food_name == name:
+                            total = int(quantity) * int(price)
+                            order_item = {
+                                "order_item_id":order_item_id,
+                                "order_id":order_id,
+                                "food_name":food_name,
+                                "Quantity":quantity,
+                                "price":price,
+                                "total":total
+                                }
+                            
+
+                            order_items.append(order_item)
+
+                    grand = 0
+                    items = 0
+                    for order_item in order_items:
+                        o = order_item.get('order_id')
+                        
+                        if o == order_id:
+                            num = order_item.get('Quantity')
+                            total = order_item.get('total')
+                            grand = grand + int(total)
+                            items = items + int(num)
+
                 order = {
                     "order_id":order_id,
                     "ordered_by":ordered_by,
@@ -347,16 +392,22 @@ class Orders(object):
                     "payment_mode":payment_mode,
                     "completed_status":False,
                     "accepted_status":None,
-                    
+                    "grand_total":grand,
+                    "number_of_items":items
                     }
 
-                orders.append(order) #add order to the list of orders.          
+                orders.append(order)           
 
-                return make_response(jsonify({"status":"created", "orders":orders, "order":order}),201)
-           
-    
+                return make_response(jsonify({"status":"created", "orders":orders, "order_items":order_items, "order":order, "order_item":order_item,}),201)
+            else:
+                return make_response(jsonify({"status":"not acceptable", "message":"You must order atleast one item"}),406)
+
+
     @app.route("/api/v1/orders", methods=["GET"])
     def ordersall():
+        if not session.get('logged_in_admin'):
+            return make_response(jsonify({"status":"unauthorised", "message":"Admin User must be logged in"}),401)
+        
     
         if len(orders) == 0:
             return make_response(jsonify({"status":"not found","message":"order you are looking for does not exist"}),404)
@@ -369,6 +420,8 @@ class Orders(object):
 
     @app.route('/api/v1/orders/<int:order_id>', methods=['GET'])
     def specificorder(order_id):
+        if not session.get('logged_in_admin'):
+            return make_response(jsonify({"status":"unauthorised", "message":"Admin User must be logged in"}),401)
         
         order = [order for order in orders if order.get('order_id')==order_id]#get a specific order by order id
         
@@ -384,10 +437,8 @@ class Orders(object):
 
     @app.route('/api/v1/orders/<int:order_id>', methods=['PUT'])
     def updateorders(order_id):
-        
-        
-        
-       
+        if not session.get('logged_in_admin'):
+            return jsonify(400,"Admin User must be logged in")
         
         if request.method == 'PUT':
             data = request.get_json()
@@ -425,55 +476,5 @@ class Orders(object):
         else:
             return Orders.specificorder(order_id)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        
+       
